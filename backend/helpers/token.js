@@ -14,7 +14,6 @@ const decryptToken = (req,res,next)=>{
 return
     }
     catch(err){
-        console.log(err)
         if (err.message === "jwt expired")
         {
             return res.status(403).send({msg:"Please login again"})

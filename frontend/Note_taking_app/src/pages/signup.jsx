@@ -37,7 +37,6 @@ const SignUp = () => {
     const userData={
       name,email,password
     }
-    console.log(userData)
     try{
       const res=await fetch("http://localhost:5000/user/signup",{
       method:"POST",
