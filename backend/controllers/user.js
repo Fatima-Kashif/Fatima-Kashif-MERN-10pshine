@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { encryptPass, matchPass } = require('../helpers/passEncryption');
+const {  matchPass } = require('../helpers/passEncryption');
 const User=require('../models/user')
 const jwt=require('jsonwebtoken')
 
@@ -20,11 +20,9 @@ const usersignup= async (req,res)=>{
             name,email,password
         });
         const token=createtoken(user._id);
-        console.log("token after signong up",token)
         res.cookie('token', token, {
             httpOnly: true,
             secure: false,
-            // process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 3600000 
         });
@@ -39,7 +37,10 @@ const userlogin=async (req,res)=>{
     const{email, password}=req.body;
     try{
         const allUsers = await User.find()
-        const user=await User.findOne({email})
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        if (!user){
+         return res.status(400).json({ msg: "Invalid credentials" });
+        }
         const passMatch = await matchPass(user.password,password)
        
         if(passMatch){
@@ -47,7 +48,6 @@ const userlogin=async (req,res)=>{
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
-                // process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 3600000 
             });
@@ -63,8 +63,6 @@ const userlogin=async (req,res)=>{
     }
     
 }
-
-
 
 
 module.exports={
