@@ -8,7 +8,6 @@ const createtoken =(id)=>{
         process.env.JWT_SECRET,
           { expiresIn: '1h' });
     }
-
 const usersignup= async (req,res)=>{
     const{name, email, password}=req.body;
     try{
@@ -20,11 +19,9 @@ const usersignup= async (req,res)=>{
             name,email,password
         });
         const token=createtoken(user._id);
-        console.log("token after signong up",token)
         res.cookie('token', token, {
             httpOnly: true,
             secure: false,
-            // process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 3600000 
         });
@@ -47,7 +44,6 @@ const userlogin=async (req,res)=>{
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: false,
-                // process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 3600000 
             });
@@ -63,10 +59,6 @@ const userlogin=async (req,res)=>{
     }
     
 }
-
-
-
-
 module.exports={
     usersignup,
     userlogin,

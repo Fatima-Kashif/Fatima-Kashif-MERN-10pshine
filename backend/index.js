@@ -14,7 +14,6 @@ app.use(cors({
     credentials:true
 }))
 app.use('/user',user)
-app.use('/notes',note)
 app.get('/',(req,res)=>{
     res.send('Hello world')
 })
@@ -23,4 +22,3 @@ app.get('/',(req,res)=>{
 app.listen('5000',()=>{
     console.log('Server is listening on port 5000')
 })
-
