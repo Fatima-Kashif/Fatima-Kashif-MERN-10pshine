@@ -68,7 +68,6 @@ const Input = ({ label, type, value, onChange }) => (
         )}
           <form action="">
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {/* <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} /> */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password

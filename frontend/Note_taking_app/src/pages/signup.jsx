@@ -49,7 +49,7 @@ const SignUp = () => {
     });
       if (res.ok){
         setError("");
-        navigate("/home");
+        navigate("/signin");
       }
       else {
         const errorData = await res.json();
@@ -90,7 +90,7 @@ const SignUp = () => {
             name="email"
             onChange={(e) => setEmail(e.target.value)}
           />
-          {/* <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} /> */}
+          
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
