@@ -90,7 +90,6 @@ const SignUp = () => {
             name="email"
             onChange={(e) => setEmail(e.target.value)}
           />
-          
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
@@ -115,7 +114,6 @@ const SignUp = () => {
             </div>
           </div>
         <button
-          // onClick={handleSignUp}
           className="w-full bg-orange-500 text-white py-2 rounded-xl font-semibold hover:bg-orange-600"
         >
           Sign up
