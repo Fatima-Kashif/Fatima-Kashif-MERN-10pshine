@@ -3,9 +3,7 @@ const createToken = (id)=>{
       return jwt.sign({ userId: id },
             process.env.JWT_SECRET,
               { expiresIn: '1h' });
-
 }
-
 const decryptToken = (req,res,next)=>{
     const token = req.headers.authorization.split(' ')[1];
     try{
@@ -21,10 +19,7 @@ return
             return res.status(403).send({msg:"Please login again"})
         }
     }
-    
-
 }
-
 module.exports ={
     createToken,
     decryptToken

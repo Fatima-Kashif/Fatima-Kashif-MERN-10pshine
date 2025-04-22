@@ -8,7 +8,6 @@ const createtoken =(id)=>{
         process.env.JWT_SECRET,
           { expiresIn: '1h' });
     }
-
 const usersignup= async (req,res)=>{
     const{name, email, password}=req.body;
     try{
@@ -63,8 +62,6 @@ const userlogin=async (req,res)=>{
     }
     
 }
-
-
 module.exports={
     usersignup,
     userlogin,
