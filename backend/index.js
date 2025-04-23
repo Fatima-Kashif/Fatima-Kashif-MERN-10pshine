@@ -1,7 +1,6 @@
 const express=require('express');
 const mongoose=require('mongoose');
 const user=require('./routes/user')
-const note=require('./routes/notes')
 const cors = require('cors');
 const cookieParser= require('cookie-parser')
 
@@ -14,7 +13,6 @@ app.use(cors({
     credentials:true
 }))
 app.use('/user',user)
-app.use('/notes',note)
 app.get('/',(req,res)=>{
     res.send('Hello world')
 })
@@ -23,4 +21,3 @@ app.get('/',(req,res)=>{
 app.listen('5000',()=>{
     console.log('Server is listening on port 5000')
 })
-
