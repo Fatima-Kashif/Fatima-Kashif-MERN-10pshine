@@ -1,7 +1,6 @@
 const express=require('express');
 const mongoose=require('mongoose');
 const user=require('./routes/user')
-const note=require('./routes/notes')
 const cors = require('cors');
 const cookieParser= require('cookie-parser')
 

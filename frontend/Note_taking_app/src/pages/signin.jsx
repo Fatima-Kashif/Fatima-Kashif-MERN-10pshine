@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import eye from "@iconify/icons-mdi/eye";
 import eyeOff from "@iconify/icons-mdi/eye-off";
+import BASE_URL from '../config.js'
 
 const Input = ({ label, type, value, onChange }) => (
     <div className="mb-4">
@@ -33,7 +34,7 @@ const Input = ({ label, type, value, onChange }) => (
         name,email,password
       }
       try{
-        const res=await fetch("http://localhost:5173/user/signin",{
+        const res=await fetch(`${BASE_URL}/user/signin`,{
         method:"POST",
         headers:{
           "Content-Type":"application/json",
