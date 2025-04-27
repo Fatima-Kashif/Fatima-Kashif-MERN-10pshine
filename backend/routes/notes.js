@@ -1,0 +1,22 @@
+const express=require('express');
+const app=express();
+app.use(express.json());
+const router=express.Router()
+const {createnote,
+       getNotes,
+       updateNote,
+       deleteNote}= require('../controllers/notes');
+const  auth  = require('../helpers/auth');
+
+router.post('/createnote', auth,createnote); 
+
+router.get('/getnotes', auth, getNotes);
+
+
+router.put('/update/:id', auth, updateNote);
+
+
+router.delete('/delete/:id', auth, deleteNote);
+
+
+module.exports=router;

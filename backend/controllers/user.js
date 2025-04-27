@@ -36,7 +36,6 @@ const usersignup= async (req,res)=>{
 const userlogin=async (req,res)=>{
     const{email, password}=req.body;
     try{
-        const allUsers = await User.find()
         const user = await User.findOne({ email: email.toLowerCase().trim() });
         if (!user){
          return res.status(400).json({ msg: "Invalid credentials" });
@@ -46,10 +45,11 @@ const userlogin=async (req,res)=>{
         if(passMatch){
             const token=createtoken(user._id);
             res.cookie('token', token, {
-                httpOnly: true,
+                httpOnly: false,
                 secure: false,
-                sameSite: 'strict',
-                maxAge: 3600000 
+                sameSite: 'lax',
+                maxAge: 3600000,
+                domain:"localhost"
             });
             return res.status(201).json({msg:'Welcome to your account',token})
         }
