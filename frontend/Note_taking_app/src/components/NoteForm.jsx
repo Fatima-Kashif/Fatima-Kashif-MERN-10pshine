@@ -1,9 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, use } from 'react';
 import JoditEditor from 'jodit-react';
 import { StarIcon, MapPinIcon as PinnedIcon } from '@heroicons/react/24/outline';
+import { isNotNoteEditing } from '../features/notes/noteSlice';
+import { useSelector,useDispatch } from 'react-redux';
 
 const MarkdownEditor = ({ value, onChange }) => {
   const [activeTab, setActiveTab] = useState('write');
+  
   const editor = useRef(null);
 
   const config = {
@@ -49,6 +52,7 @@ const MarkdownEditor = ({ value, onChange }) => {
         </button>
       </div>
 
+    
       <div className="p-2 bg-white" data-color-mode="light">
         {activeTab === 'write' ? (
           <JoditEditor
@@ -77,9 +81,11 @@ const NoteForm = ({
   onFieldChange,
   isSaving 
 }) => {
+  const dispatch = useDispatch();
+  const {isEditing}= useSelector((state) => state.notes);
   return (
     <div className="bg-white rounded-xl w-full max-w-2xl p-6">
-      <h2 className="text-xl font-bold mb-4">{note.id ? 'Edit Note' : 'Add New Note'}</h2>
+      <h2 className="text-xl font-bold mb-4">{isEditing ? 'Edit Note' : 'Add New Note'}</h2>
       
       <input
         type="text"
@@ -98,8 +104,8 @@ const NoteForm = ({
         <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={note.isFavorite}
-            onChange={(e) => onFieldChange('isFavorite', e.target.checked)}
+            checked={note.favourite}
+            onChange={(e) => onFieldChange('favourite', e.target.checked)}
             className="mr-2"
           />
           <StarIcon className="w-5 h-5 text-yellow-500" />
@@ -109,8 +115,8 @@ const NoteForm = ({
         <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={note.isPinned}
-            onChange={(e) => onFieldChange('isPinned', e.target.checked)}
+            checked={note.pinned}
+            onChange={(e) => onFieldChange('pinned', e.target.checked)}
             className="mr-2"
           />
           <PinnedIcon className="w-5 h-5 text-orange-500" />
@@ -120,7 +126,11 @@ const NoteForm = ({
       
       <div className="flex justify-end space-x-3">
         <button
-          onClick={onCancel}
+          onClick={()=>{
+            dispatch(isNotNoteEditing());
+            onCancel()
+          }
+          }
           className="px-4 py-2 border rounded-lg hover:bg-gray-100"
           disabled={isSaving}
         >
@@ -131,7 +141,7 @@ const NoteForm = ({
           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : (note.id ? 'Update Note' : 'Add Note')}
+          {isSaving ? 'Saving...' : (isEditing ? 'Update Note' : 'Add Note')}
         </button>
       </div>
     </div>

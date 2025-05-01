@@ -39,7 +39,7 @@ const SignUp = () => {
       name,email,password
     }
     try{
-      const res=await fetch(`${BASE_URL}/user/signup`,{
+const res=await fetch(`${BASE_URL}/user/signup`,{
       method:"POST",
       credentials: "include", 
       headers:{

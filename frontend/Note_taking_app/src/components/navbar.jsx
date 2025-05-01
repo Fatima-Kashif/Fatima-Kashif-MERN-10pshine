@@ -1,13 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser } from '../features/user/userSlice';
+import { useDispatch,useSelector } from 'react-redux';
 
-const Navbar = ({ userName }) => {
+
+const Navbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.userInfo);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
-    navigate('/login');
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      navigate('/signin');
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
+
 
   return (
     <div className="bg-[#f8eee2] shadow-sm py-4 px-6 flex justify-between items-center">
@@ -17,7 +29,7 @@ const Navbar = ({ userName }) => {
 </div>
       
       <div className="flex items-center space-x-4">
-        <span className="text-gray-700">Hello, {userName}</span>
+       {user && <span className="text-gray-700">Welcome, {user.user.name}</span>}
         <button 
           onClick={() => setShowLogoutConfirm(true)}
           className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg"
