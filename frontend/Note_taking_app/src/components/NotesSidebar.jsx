@@ -11,7 +11,7 @@ const NotesSidebar = ({
       
       <button 
         onClick={onAddNote}
-        className="flex items-center w-full p-3 mb-4 rounded-lg bg-orange-500 text-white hover:bg-orange-400  transition"
+        className="flex items-center w-full p-3 mb-4 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition"
       >
         <AddIcon className="w-5 h-5 mr-2" />
         Add Note

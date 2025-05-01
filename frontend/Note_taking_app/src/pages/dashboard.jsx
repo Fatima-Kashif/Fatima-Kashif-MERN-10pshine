@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import NotesSidebar from '../components/NotesSidebar';
 import SearchBar from '../components/Searchbar';
 import NoteList from '../components/NoteList';
@@ -6,17 +7,20 @@ import NoteForm from '../components/NoteForm';
 import Confirmation from '../components/confirmation';
 import Notification from '../components/notification';
 import Navbar from '../components/navbar';
+import { getAllUserNotes, addUserNote, resetAddNote, deleteUserNote,isNoteEditing, setNoteToEdit, editUserNote } from '../features/notes/noteSlice';
+import { useNavigate } from 'react-router-dom';
 
-const NOTES_STORAGE_KEY = 'notes-app-data';
 
 const NotesDashboard = () => {
-  const [notes, setNotes] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {notes,noteAdded,noteDelete,noteEdit,loading,isEditing} = useSelector((state) => state.notes);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newNote, setNewNote] = useState({ 
     title: '', 
     content: '', 
-    isFavorite: false, 
-    isPinned: false 
+    favourite: false, 
+    pinned: false 
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -24,68 +28,113 @@ const NotesDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [showSaveWarning, setShowSaveWarning] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [filteredNotes, setFilteredNotes] = useState([]);  
 
-  useEffect(() => {
-    const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
-    if (savedNotes) {
-      try {
-        const parsedNotes = JSON.parse(savedNotes);
-        setNotes(parsedNotes);
-      } catch (error) {
-        console.error('Failed to parse saved notes', error);
-        addNotification('Failed to load saved notes', 'error');
+
+  useEffect(() =>{
+    const token = document.cookie
+  const match = token.match(/token=([^;]+)/);
+    if (!match){
+      navigate('/signin')
+    }
+
+  },[])
+
+   useEffect(() => { 
+  dispatch(getAllUserNotes());
+  if (noteAdded || noteDelete || noteEdit) {
+    dispatch(resetAddNote());
+  }
+    },[noteAdded,noteDelete,noteEdit])
+
+    useEffect(() => {
+      if (noteDelete){
+        addNotification('Note deleted successfully!', 'success');
+        setNoteToDelete(null);
+        dispatch(resetAddNote())
       }
-    }
-    setIsInitialLoad(false);
-  }, []);
+    },[noteDelete])
+    
+    useEffect(()=>{
+      if(noteEdit){
+        addNotification('Note updated successfully!', 'success');
+        setIsModalOpen(false);
+        setNewNote({ title: '', content: '', favourite: false, pinned: false });
+        dispatch(resetAddNote())
+      }
+        
+},[noteEdit])
 
-  useEffect(() => {
-    if (!isInitialLoad) {
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
-    }
-  }, [notes, isInitialLoad]);
 
-  const filteredNotes = notes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase());
-    if (activeFilter === 'favorites') return matchesSearch && note.isFavorite;
-    if (activeFilter === 'pinned') return matchesSearch && note.isPinned;
-    return matchesSearch;
-  }).sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
-    if (a.isFavorite && !b.isFavorite) return -1;
-    if (!a.isFavorite && b.isFavorite) return 1;
-    return new Date(b.date) - new Date(a.date);
-  });
+useEffect(()=>{
+  const filterHere = notes &&  notes.length > 0 && notes
+       .filter(note => {
+         const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase());
+         if (activeFilter === 'favorites') return matchesSearch && note.favourite;
+         if (activeFilter === 'pinned') return matchesSearch && note.pinned;
+         return matchesSearch;
+       })
+       .sort((a, b) => {
+         if (a.pinned && !b.pinned) return -1;
+         if (!a.pinned && b.pinned) return 1;
+         if (a.favourite && !b.favourite) return -1;
+         if (!a.favourite && b.favourite) return 1;
+         return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
+       })
+       setFilteredNotes(filterHere)
+},[activeFilter,searchTerm,notes])
+
+    
+
+
+   useEffect(()=>{
+      if (notes && notes.length > 0 && activeFilter === "all") {
+     
+         setFilteredNotes(notes);
+      }
+    },[notes])
+   
+
 
   const addNotification = (message, type = 'info') => {
     const id = Date.now();
-    setNotifications([...notifications, { id, message, type }]);
+    setNotifications(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
-      setNotifications(notifications.filter(n => n.id !== id));
+      removeNotification(id);
     }, 3000);
   };
 
-  const handleAddNote = () => {
-    const newNoteObj = {
-      ...newNote,
-      id: Date.now(),
-      date: new Date().toISOString()
-    };
-    setNotes([...notes, newNoteObj]);
-    setIsModalOpen(false);
-    setNewNote({ title: '', content: '', isFavorite: false, isPinned: false });
-    addNotification('Note added successfully!', 'success');
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const handleUpdateNote = () => {
-    setNotes(notes.map(note => 
-      note.id === newNote.id ? newNote : note
-    ));
-    setIsModalOpen(false);
-    setNewNote({ title: '', content: '', isFavorite: false, isPinned: false });
-    addNotification('Note updated successfully!', 'success');
+  const handleAddNote = async () => {
+    if (!newNote.title.trim()) {
+      addNotification('Title is required!', 'error');
+      return;
+    }
+
+    try {
+      dispatch(addUserNote(newNote))
+      addNotification('Note added successfully!', 'success');
+      setIsModalOpen(false);
+      setNewNote({ title: '', content: '', favourite: false, pinned: false });
+    } catch (error) {
+      addNotification('Failed to add note', 'error');
+    }
+  };
+
+  const handleUpdateNote = async () => {
+    if (!newNote.title.trim()) {
+      addNotification('Title is required!', 'error');
+      return;
+    }
+
+    try {
+      dispatch(editUserNote(newNote))
+    } catch (error) {
+      addNotification('Failed to update note', 'error');
+    }
   };
 
   const handleFieldChange = (field, value) => {
@@ -97,6 +146,9 @@ const NotesDashboard = () => {
     setNewNote({ ...note });
     setIsModalOpen(true);
     setHasChanges(false);
+    dispatch(isNoteEditing())
+    dispatch(setNoteToEdit(note))
+
   };
 
   const handleCloseModal = () => {
@@ -104,29 +156,32 @@ const NotesDashboard = () => {
       setShowSaveWarning(true);
     } else {
       setIsModalOpen(false);
+      setNewNote({ title: '', content: '', favourite: false, pinned: false });
     }
   };
 
-  const confirmDelete = () => {
-    setNotes(notes.filter(note => note.id !== noteToDelete));
-    setNoteToDelete(null);
-    addNotification('Note deleted successfully!', 'success');
+  const confirmDelete = async () => {
+    try {
+      dispatch(deleteUserNote(noteToDelete))
+    } catch (error) {
+      addNotification('Failed to delete note', 'error');
+    }
   };
 
   return (
     <>
-      <Navbar/>
+      <Navbar />
       <div className="flex h-screen bg-[#f9f6f2] overflow-hidden">
         <NotesSidebar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
           onAddNote={() => {
-            setNewNote({ title: '', content: '', isFavorite: false, isPinned: false });
+            setNewNote({ title: '', content: '', favourite: false, pinned: false });
             setIsModalOpen(true);
             setHasChanges(false);
           }}
         />
-        
+
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="p-4">
             <SearchBar 
@@ -134,16 +189,17 @@ const NotesDashboard = () => {
               onSearchChange={setSearchTerm}
             />
           </div>
-          
+
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            {notes.length === 0 ? (
+            { filteredNotes && 
+            filteredNotes.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="text-gray-500 text-lg mb-4">
                   You haven't added any notes yet
                 </div>
                 <button
                   onClick={() => {
-                    setNewNote({ title: '', content: '', isFavorite: false, isPinned: false });
+                    setNewNote({ title: '', content: '', favourite: false, pinned: false });
                     setIsModalOpen(true);
                   }}
                   className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-400 transition"
@@ -151,73 +207,77 @@ const NotesDashboard = () => {
                   Create Your First Note
                 </button>
               </div>
-            ) : (
+            ) : ( 
+            
               <NoteList
                 notes={filteredNotes}
                 onEdit={handleEditNote}
                 onDelete={setNoteToDelete}
                 onToggleFavorite={(id) => {
-                  setNotes(notes.map(note => 
-                    note.id === id ? { ...note, isFavorite: !note.isFavorite } : note
-                  ));
+                  const note = notes.find(n => n.id === id);
+                  if (note) {
+                    const updatedNote = { ...note, favourite: !note.favourite };
+                    setNewNote(updatedNote);
+                  }
                 }}
                 onTogglePin={(id) => {
-                  setNotes(notes.map(note => 
-                    note.id === id ? { ...note, isPinned: !note.isPinned } : note
-                  ));
+                  const note = notes.find(n => n.id === id);
+                  if (note) {
+                    const updatedNote = { ...note, pinned: !note.pinned };
+                    setNewNote(updatedNote);
+                  }
                 }}
               />
-            )}
+              )}
           </div>
         </div>
-      
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <NoteForm
-            note={newNote}
-            onSave={newNote.id ? handleUpdateNote : handleAddNote}
-            onCancel={handleCloseModal}
-            onFieldChange={handleFieldChange}
-          />
+
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <NoteForm
+              note={newNote}
+              onSave={isEditing? handleUpdateNote : handleAddNote}
+              onCancel={handleCloseModal}
+              onFieldChange={handleFieldChange}
+            />
+          </div>
+        )}
+
+        <Confirmation
+          isOpen={!!noteToDelete}
+          title="Delete Note"
+          message="Are you sure you want to delete this note? This action cannot be undone."
+          onConfirm={confirmDelete}
+          onCancel={() => setNoteToDelete(null)}
+          confirmText="Delete"
+          confirmColor="red"
+        />
+
+        <Confirmation
+          isOpen={showSaveWarning}
+          title="Unsaved Changes"
+          message="You have unsaved changes. Are you sure you want to close?"
+          onConfirm={() => {
+            setIsModalOpen(false);
+            setShowSaveWarning(false);
+            setHasChanges(false);
+          }}
+          onCancel={() => setShowSaveWarning(false)}
+          confirmText="Close Anyway"
+          confirmColor="orange"
+        />
+
+        <div className="fixed top-4 right-4 z-50 w-80">
+          {notifications.map(notification => (
+            <Notification
+              key={notification.id}
+              message={notification.message}
+              type={notification.type}
+              onClose={() => removeNotification(notification.id)}
+            />
+          ))}
         </div>
-      )}
-      
-      <Confirmation
-        isOpen={!!noteToDelete}
-        title="Delete Note"
-        message="Are you sure you want to delete this note? This action cannot be undone."
-        onConfirm={confirmDelete}
-        onCancel={() => setNoteToDelete(null)}
-        confirmText="Delete"
-        confirmColor="red"
-      />
-      
-    
-      <Confirmation
-        isOpen={showSaveWarning}
-        title="Unsaved Changes"
-        message="You have unsaved changes. Are you sure you want to close?"
-        onConfirm={() => {
-          setIsModalOpen(false);
-          setShowSaveWarning(false);
-          setHasChanges(false);
-        }}
-        onCancel={() => setShowSaveWarning(false)}
-        confirmText="Close Anyway"
-        confirmColor="orange"
-      />
-    
-      <div className="fixed top-4 right-4 z-50 w-80">
-        {notifications.map(notification => (
-          <Notification
-            key={notification.id}
-            message={notification.message}
-            type={notification.type}
-            onClose={() => setNotifications(notifications.filter(n => n.id !== notification.id))}
-          />
-        ))}
       </div>
-    </div>
     </>
   );
 };

@@ -4,7 +4,6 @@ import SignUp from "./pages/signup";
 import SignIn from "./pages/signin";
 import NotesDashboard from "./pages/dashboard";
 
-
 function App() {
   return (
     <Router>
