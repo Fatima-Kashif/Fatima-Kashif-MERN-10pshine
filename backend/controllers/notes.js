@@ -16,7 +16,7 @@ const createnote=async (req,res)=>{
         });
         await note.save();
         logger.info({noteId: note._id, userId: req.userId}, 'Note created successfully');
-        res.status(201).json({error:false,msg:"Note created successfully",notes:note})
+        res.status(201).json({error:false,msg:"Note created successfully",note})
     }
     catch(err){
       logger.error({ err }, 'Note creation error');

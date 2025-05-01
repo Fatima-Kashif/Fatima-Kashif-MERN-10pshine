@@ -23,3 +23,5 @@ app.use('/notes',note)
 app.listen('5000',()=>{
     logger.info('Server is listening on port 5000');
 })
+
+module.exports=app;

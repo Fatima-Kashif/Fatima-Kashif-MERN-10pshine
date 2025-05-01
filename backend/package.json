@@ -4,7 +4,7 @@
   "description": "Note taking application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "nodemon index.js"
   },
   "repository": {
@@ -27,5 +27,10 @@
     "mongoose": "^8.13.1",
     "nodemon": "^3.1.9",
     "pino": "^9.6.0"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^11.2.2"
   }
 }
