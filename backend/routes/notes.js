@@ -13,10 +13,10 @@ router.post('/createnote', auth,createnote);
 router.get('/getnotes', auth, getNotes);
 
 
-router.put('/update/:id', auth, updateNote);
+router.put('/updatenote/:id', auth, updateNote);
 
 
-router.delete('/delete/:id', auth, deleteNote);
+router.delete('/deletenote/:id', auth, deleteNote);
 
 
 module.exports=router;
