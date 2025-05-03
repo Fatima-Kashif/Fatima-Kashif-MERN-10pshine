@@ -97,6 +97,7 @@ useEffect(()=>{
 
 
   const addNotification = (message, type = 'info') => {
+    setNotifications(prev => prev.filter(n => n.message !== message));
     const id = Date.now();
     setNotifications(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
@@ -191,45 +192,55 @@ useEffect(()=>{
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            { filteredNotes && 
-            filteredNotes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="text-gray-500 text-lg mb-4">
-                  You haven't added any notes yet
-                </div>
-                <button
-                  onClick={() => {
-                    setNewNote({ title: '', content: '', favourite: false, pinned: false });
-                    setIsModalOpen(true);
-                  }}
-                  className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-400 transition"
-                >
-                  Create Your First Note
-                </button>
-              </div>
-            ) : ( 
-            
-              <NoteList
-                notes={filteredNotes}
-                onEdit={handleEditNote}
-                onDelete={setNoteToDelete}
-                onToggleFavorite={(id) => {
-                  const note = notes.find(n => n.id === id);
-                  if (note) {
-                    const updatedNote = { ...note, favourite: !note.favourite };
-                    setNewNote(updatedNote);
-                  }
-                }}
-                onTogglePin={(id) => {
-                  const note = notes.find(n => n.id === id);
-                  if (note) {
-                    const updatedNote = { ...note, pinned: !note.pinned };
-                    setNewNote(updatedNote);
-                  }
-                }}
-              />
-              )}
-          </div>
+  {loading ? (
+    <div className="flex items-center justify-center h-full">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+    </div>
+  ) : (
+    <div data-testid="empty-state"> 
+
+    
+    {filteredNotes.length === 0 ? (
+      <div className="flex flex-col items-center justify-center h-full" >
+        <div className="text-gray-500 text-lg mb-4" data-testid="empty-message">
+          You haven't added any notes yet
+        </div>
+        <button
+          onClick={() => {
+            setNewNote({ title: '', content: '', favourite: false, pinned: false });
+            setIsModalOpen(true);
+          }}
+          className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-400 transition"
+          data-testid="create-first-note"
+        >
+          Create Your First Note
+        </button>
+      </div>
+
+    ) : (
+      <NoteList
+        notes={filteredNotes}
+        onEdit={handleEditNote}
+        onDelete={setNoteToDelete}
+        onToggleFavorite={(id) => {
+          const note = notes.find(n => n.id === id);
+          if (note) {
+            const updatedNote = { ...note, favourite: !note.favourite };
+            setNewNote(updatedNote);
+          }
+        }}
+        onTogglePin={(id) => {
+          const note = notes.find(n => n.id === id);
+          if (note) {
+            const updatedNote = { ...note, pinned: !note.pinned };
+            setNewNote(updatedNote);
+          }
+        }}
+      />
+    )}
+    </div>
+  )}
+</div>
         </div>
 
         {isModalOpen && (
@@ -267,13 +278,14 @@ useEffect(()=>{
           confirmColor="orange"
         />
 
-        <div className="fixed top-4 right-4 z-50 w-80">
+        <div className="fixed top-4 right-4 z-50 w-80" data-testid="notifications-container">
           {notifications.map(notification => (
             <Notification
               key={notification.id}
               message={notification.message}
               type={notification.type}
               onClose={() => removeNotification(notification.id)}
+              data-testid={`notification-${notification.type}`}
             />
           ))}
         </div>

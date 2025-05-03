@@ -5,21 +5,30 @@ import eye from "@iconify/icons-mdi/eye";
 import eyeOff from "@iconify/icons-mdi/eye-off";
 import BASE_URL from '../config.js'
 
-const Input = ({ label, type, value, onChange, name }) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      {label}
-    </label>
-    <input
-      type={type}
-      value={value}
-      required
-      name={name}
-      onChange={onChange}
-      className="w-full px-4 py-2 border rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
-    />
-  </div>
-);
+const Input = ({ label, type, value, onChange, name }) => {
+  const id = `input-${name}`; // Unique and predictable ID
+  return (
+    <div className="mb-4">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-1"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        required
+        name={name}
+        onChange={onChange}
+        className="w-full px-4 py-2 border rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        data-testid={`${name}-input`}
+      />
+    </div>
+  );
+};
+
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -90,29 +99,35 @@ const res=await fetch(`${BASE_URL}/user/signup`,{
             name="email"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={isvisible ? "text" : "password"}
-                value={password}
-                name="password"
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
+        
 
-              <button type="button" onClick={toggleeye}>
-                <Icon
-                  className="absolute top-2.5 right-3"
-                  icon={isvisible ? eye : eyeOff}
-                  size={25}
-                />
-              </button>
-            </div>
-          </div>
+
+<div className="mb-4">
+  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+    Password
+  </label>
+  <div className="relative">
+    <input
+      id="password"
+      type={isvisible ? "text" : "password"}
+      value={password}
+      name="password"
+      onChange={(e) => setPassword(e.target.value)}
+      required
+      className="w-full px-4 py-2 border rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400"
+      data-testid="password-input" 
+   />
+    <button 
+      type="button" 
+      onClick={toggleeye}
+      aria-label="Toggle password visibility"
+      className="absolute top-2.5 right-3 text-gray-500 hover:text-gray-700"
+    >
+      <Icon icon={isvisible ? eye : eyeOff} size={25} />
+    </button>
+  </div>
+</div>
+
         <button
           className="w-full bg-orange-500 text-white py-2 rounded-xl font-semibold hover:bg-orange-600"
         >
