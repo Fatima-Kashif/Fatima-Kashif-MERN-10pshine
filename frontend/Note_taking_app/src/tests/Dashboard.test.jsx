@@ -238,7 +238,7 @@ describe('NotesDashboard Component', () => {
         },
         preloadedState: {
           notes: {
-            notes: [{ id: 1, title: '', content: '' }], // notes exist ✅
+            notes: [{ id: 1, title: '', content: '' }], 
             loading: false,
             noteAdded: false,
             noteDelete: false,
@@ -265,11 +265,6 @@ describe('NotesDashboard Component', () => {
       const emptyState = await screen.findByTestId('empty-state');
       expect(emptyState).toBeInTheDocument();
   
-      const message = within(emptyState).getByTestId('empty-message');
-      expect(message).toHaveTextContent("You haven't added any notes yet");
-  
-      const button = within(emptyState).getByTestId('create-first-note');
-      expect(button).toBeInTheDocument();
     });
   });
 

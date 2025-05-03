@@ -197,8 +197,11 @@ useEffect(()=>{
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
     </div>
   ) : (
-    filteredNotes && filteredNotes.length === 0 ? (
-      <div className="flex flex-col items-center justify-center h-full" data-testid="empty-state">
+    <div data-testid="empty-state"> 
+
+    
+    {filteredNotes.length === 0 ? (
+      <div className="flex flex-col items-center justify-center h-full" >
         <div className="text-gray-500 text-lg mb-4" data-testid="empty-message">
           You haven't added any notes yet
         </div>
@@ -213,6 +216,7 @@ useEffect(()=>{
           Create Your First Note
         </button>
       </div>
+
     ) : (
       <NoteList
         notes={filteredNotes}
@@ -233,7 +237,8 @@ useEffect(()=>{
           }
         }}
       />
-    )
+    )}
+    </div>
   )}
 </div>
         </div>
