@@ -33,12 +33,15 @@ Testing is implemented using **Mocha** and **Jest**, with continuous code qualit
    ```bash
    git clone https://github.com/your-username/note-management-system.git
    cd note-management-system
-   # Install server dependencies
+   
 2. **Install dependencies**
-    npm install
-3. **Configure .env file**
+   ```bash
+   # Install server dependencies
+   npm install
+4. **Configure .env file**
+   
     Configure the JWT there and mongoDB URL for connection in index.js file
-4. **Run the project**
+6. **Run the project**
    ```bash
    #For frontend
    cd frontend
